@@ -35,7 +35,8 @@ class SignUpSerializer(serializers.Serializer):
     def validate_email(self, value):
         try:
             CustomUser.objects.get(email=value)
-            raise serializers.ValidationError('Электронная почта используется другим пользователем')
+            raise serializers.ValidationError('Электронная почта используется '
+                                              'другим пользователем')
         except ObjectDoesNotExist:
             pass
         return value
@@ -56,3 +57,10 @@ class SignUpSerializer(serializers.Serializer):
         registration_token.user = new_user
         registration_token.save()
         return new_user
+
+
+class AuthorizationUser(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ('slug', 'id', 'username', )

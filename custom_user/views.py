@@ -23,10 +23,29 @@ class SignInAPI(APIView):
 
     def post(self, request):
         data = request.data
-        user = authenticate(
-            data
-        )
+        user = authenticate(data)
         if user:
             return login(request, user)
         else:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
+class InitAuthStateAPI(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        user = request.user
+        if user.is_authenticated:
+            data = serializers.AuthorizationUser(user).data
+        else:
+            data = None
+        return Response(status=status.HTTP_200_OK, data=data)
+
+
+class LogoutAPI(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        user = request.user
+        login(request, user)
+        return Response(status=status.HTTP_205_RESET_CONTENT)
