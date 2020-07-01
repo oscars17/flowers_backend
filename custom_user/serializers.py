@@ -15,13 +15,33 @@ class SignUpSerializer(serializers.Serializer):
 
     def __init__(self, *args, **kwargs):
         super(SignUpSerializer, self).__init__(*args, **kwargs)
-        self.fields['username'].error_messages['blank'] = 'Поле не может быть пустым'
-        self.fields['email'].error_messages.update({'blank': 'Поле не может быть пустым',
-                                                    'invalid': 'Неверный формат электронной почты'}
-                                                   )
-        self.fields['password'].error_messages['blank'] = 'Поле не может быть пустым'
+        error_list = []
+        try:
+            self.fields['username'].error_messages['blank'] = 'Поле не может быть пустым'
+        except KeyError:
+            error_list.append("Запрос должен содержать поле 'username'")
+        try:
+            self.fields['email'].error_messages.update({'blank': 'Поле не может быть пустым',
+                                                        'invalid': 'Неверный формат электронной почты'}
+                                                        )
+        except KeyError:
+            error_list.append("Запрос должен содержать поле 'email'")
+        try:
+            self.fields['password_1'].error_messages['blank'] = 'Поле не может быть пустым'
+        except KeyError:
+            error_list.append("Запрос должен содержать поле 'password_1'")
+        try:
+            self.fields['password_2'].error_messages['blank'] = 'Поле не может быть пустым'
+        except KeyError:
+            error_list.append("Запрос должен содержать поле 'password_2'")
+        if len(error_list) != 0:
+            raise serializers.ValidationError(' '.join(error_list))
 
     def validate_username(self, value):
+        if len(value) > 10:
+            raise serializers.ValidationError('Никнейм не может быть длинее десяти символов')
+        elif len(value) < 3:
+            raise serializers.ValidationError('Никнейм должен состоять минимум из трех символов')
         if re.match('[a-zA-Z0-9]+', value) is None:
             raise serializers.ValidationError('Имя может содержать только буквы и числа')
         try:

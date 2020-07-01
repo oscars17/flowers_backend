@@ -30,23 +30,25 @@ class CustomUserManager(BaseUserManager):
         user = self.model(
             username=username,
             slug=slug,
-            password=password,
             email=self.normalize_email(email)
         )
         user.is_admin = True
         user.is_active = True
+        user.set_password(password)
         user.save(self._db)
         return user
 
 
 class CustomUser(AbstractBaseUser):
     username = models.CharField(max_length=25, verbose_name='username')
-    slug = models.SlugField(max_length=25,
-                            blank=True,
-                            null=True,
-                            unique=True,
-                            verbose_name='slug'
-                            )
+    slug = models.SlugField(
+        max_length=25,
+        blank=True,
+        null=True,
+        unique=True,
+        verbose_name='slug'
+        )
+    username_changed = models.BooleanField(default=False, verbose_name='username was changed')
     email = models.EmailField(max_length=255, unique=True, verbose_name='email address')
     registration_date = models.DateField(default=timezone.now)
     is_active = models.BooleanField(default=False)
@@ -54,8 +56,8 @@ class CustomUser(AbstractBaseUser):
 
     objects = CustomUserManager()
 
-    USERNAME_FIELD = 'slug'
-    REQUIRED_FIELDS = ['email', ]
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return self.slug
@@ -63,6 +65,12 @@ class CustomUser(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.is_admin
+
+    def has_perm(self, perm, obj=None):
+       return self.is_admin
+
+    def has_module_perms(self, app_label):
+       return self.is_admin
 
 
 class TokenMeta(models.Model):

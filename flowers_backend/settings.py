@@ -29,9 +29,9 @@ INSTALLED_APPS = [
     'custom_user',
     'text_materials',
     'comments',
-    'video',
     'cart',
-    'images',
+    'files',
+    'shop',
 ]
 
 MIDDLEWARE = [
@@ -109,12 +109,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-MEDIA_URL = '/media/' # add this
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
-AUT_USER_MODEL = 'custom_user.CustomUser'
+AUTH_USER_MODEL = 'custom_user.CustomUser'
 
 LANGUAGE_CODE = 'en-us'
 
@@ -127,3 +127,7 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
